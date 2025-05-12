@@ -14,6 +14,7 @@ export default function TuitionCalculator() {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [tuitionData, setTuitionData] = useState({});
   const [additionalData, setAdditionalData] = useState([]);
+  const baseURL = 'https://tamuk.wr.ardent.dev/wp-content/uploads/2025/05' 
 
   const normalizeHeaders = (data) => {
     return data.map(row => {
@@ -58,13 +59,13 @@ export default function TuitionCalculator() {
         const tuitionResults = {};
 
         for (const file of files) {
-          const res = await fetch(`/${file}`);
+          const res = await fetch(`${baseURL}/${file}`);
           const text = await res.text();
           const parsed = Papa.parse(text, { header: true });
           tuitionResults[file.replace('.csv', '')] = normalizeHeaders(parsed.data);
         }
 
-        const additionalRes = await fetch("/additional-costs.csv");
+        const additionalRes = await fetch(`${baseURL}/additional-costs.csv`);
         const additionalText = await additionalRes.text();
         const additionalParsed = Papa.parse(additionalText, { header: true });
         setAdditionalData(normalizeHeaders(additionalParsed.data));
