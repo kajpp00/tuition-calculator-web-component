@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import "./TuitionCalculator.css";
 
@@ -15,7 +15,6 @@ export default function TuitionCalculator() {
   const [tuitionData, setTuitionData] = useState({});
   const [additionalData, setAdditionalData] = useState([]);
   const baseURL = 'https://www.tamuk.edu/_wp_rd_content/_wp_misc_feeds/tuition-calculator';
-  const lastSubmissionRef = useRef({});
 
   const normalizeHeaders = (data) => {
     return data.map(row => {
@@ -28,7 +27,11 @@ export default function TuitionCalculator() {
   };
 
   function removeDecimalAndFormat(input) {
-    const num = parseFloat(input.toString().replace(/,/g, ''));
+    const num = parseFloat(input?.toString().replace(/,/g, '') || '0');
+    if (isNaN(num)) {
+      console.error("Invalid value used in removeDecimalAndFormat:", input);
+      return "0";
+    }
     const wholeNumber = Math.trunc(num);
     return wholeNumber.toLocaleString();
   }
@@ -81,21 +84,6 @@ export default function TuitionCalculator() {
   }, []);
 
   useEffect(() => {
-    if (cost !== null && cost !== "N/A") {
-      const numericCost = parseInt(cost.replace(/,/g, ''));
-      animateValue(0, numericCost);
-    }
-  }, [cost]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const submission = { level, residency, hours, housing, term };
-    const isRepeat = JSON.stringify(submission) === JSON.stringify(lastSubmissionRef.current);
-
-    if (isRepeat && cost !== null) return;
-    lastSubmissionRef.current = submission;
-
     const fileKey = `${level}-${residency}`;
     const data = tuitionData[fileKey] || [];
     const match = data.find((row) => parseInt(row.hours) === hours);
@@ -118,7 +106,7 @@ export default function TuitionCalculator() {
     setShowBreakdown(true);
 
     if (match) {
-      let baseTotal = parseFloat(match.total.toString().replace(/,/g, ''));
+      let baseTotal = parseFloat(match.total?.toString().replace(/,/g, '') || '0');
       if (term === "fallspring") {
         baseTotal *= 2;
       }
@@ -138,26 +126,29 @@ export default function TuitionCalculator() {
         additional: { transportation, miscellaneous, books: booksCost }
       });
     }
-  };
+  }, [level, residency, hours, housing, term, tuitionData, additionalData]);
+
+  useEffect(() => {
+    if (cost !== null && cost !== "N/A") {
+      const numericCost = parseInt(cost.replace(/,/g, ''));
+      animateValue(0, numericCost);
+    }
+  }, [cost]);
 
   return (
     <div className="container">
       <h1 className="heading">Tuition Cost Calculator</h1>
-      <form onSubmit={handleSubmit} className="form">
+      <form className="form">
         <div>
           <label>Level of Study</label><br />
-          <select value={level} onChange={(e) => setLevel(e.target.value)}>
-            <option value="undergraduate">Undergraduate</option>
-            <option value="graduate">Graduate</option>
-          </select>
+          <label><input type="radio" value="undergraduate" checked={level === "undergraduate"} onChange={(e) => setLevel(e.target.value)} /> Undergraduate</label>
+          <label><input type="radio" value="graduate" checked={level === "graduate"} onChange={(e) => setLevel(e.target.value)} /> Graduate</label>
         </div>
 
         <div>
           <label>Residency Status</label><br />
-          <select value={residency} onChange={(e) => setResidency(e.target.value)}>
-            <option value="resident">Resident</option>
-            <option value="nonresident">Non-Resident</option>
-          </select>
+          <label><input type="radio" value="resident" checked={residency === "resident"} onChange={(e) => setResidency(e.target.value)} /> Resident</label>
+          <label><input type="radio" value="nonresident" checked={residency === "nonresident"} onChange={(e) => setResidency(e.target.value)} /> Non-Resident</label>
         </div>
 
         <div>
@@ -183,8 +174,6 @@ export default function TuitionCalculator() {
             max="21"
           />
         </div>
-
-        <button type="submit" className="button">Calculate</button>
       </form>
 
       {animatedCost && (
@@ -203,13 +192,21 @@ export default function TuitionCalculator() {
           <h2>Cost Breakdown:</h2>
           <div className="breakdown-columns">
             <div className="column">
-              <h3>Tuition & Fees: ${removeDecimalAndFormat(term === "fallspring" ? parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '')) * 2 : parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '')))}</h3>
+              <h3>Tuition & Fees: {
+                breakdown.tuition.total
+                  ? `$${removeDecimalAndFormat(term === "fallspring"
+                      ? parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '') || '0') * 2
+                      : parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '') || '0'))}`
+                  : "N/A"
+              }</h3>
               <ul>
-                {Object.entries(breakdown.tuition).map(([key, value]) => (
-                  key !== "total" ? (
-                    <li key={key}><strong>{key}</strong>: {key === "hours" ? value : `$${removeDecimalAndFormat(value)}`}</li>
-                  ) : null
-                ))}
+                {Object.entries(breakdown.tuition).map(([key, value]) => {
+                  if (key === "total") return null;
+                  const label = key.replace(/\b\w/g, l => l.toUpperCase());
+                  return (
+                    <li key={key}><strong>{label}</strong>: {key === "hours" ? value : `$${removeDecimalAndFormat(value)}`}</li>
+                  );
+                })}
               </ul>
             </div>
             <div className="column">
@@ -219,7 +216,7 @@ export default function TuitionCalculator() {
               <h3>Indirect Costs: ${removeDecimalAndFormat(Object.values(breakdown.additional).reduce((sum, value) => sum + value, 0))}</h3>
               <ul>
                 {Object.entries(breakdown.additional).map(([key, value]) => (
-                  <li key={key}><strong>{key}</strong>: ${removeDecimalAndFormat(value)}</li>
+                  <li key={key}><strong>{key.replace(/\b\w/g, l => l.toUpperCase())}</strong>: ${removeDecimalAndFormat(value)}</li>
                 ))}
               </ul>
             </div>
