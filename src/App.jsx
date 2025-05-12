@@ -12,6 +12,8 @@ export default function TuitionCalculator() {
   const [animatedCost, setAnimatedCost] = useState(null);
   const [breakdown, setBreakdown] = useState(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [tuitionData, setTuitionData] = useState({});
+  const [additionalData, setAdditionalData] = useState([]);
 
   const normalizeHeaders = (data) => {
     return data.map(row => {
@@ -45,70 +47,86 @@ export default function TuitionCalculator() {
   };
 
   useEffect(() => {
+    const loadCSVs = async () => {
+      try {
+        const files = [
+          'undergraduate-resident.csv',
+          'undergraduate-nonresident.csv',
+          'graduate-resident.csv',
+          'graduate-nonresident.csv'
+        ];
+        const tuitionResults = {};
+
+        for (const file of files) {
+          const res = await fetch(`/${file}`);
+          const text = await res.text();
+          const parsed = Papa.parse(text, { header: true });
+          tuitionResults[file.replace('.csv', '')] = normalizeHeaders(parsed.data);
+        }
+
+        const additionalRes = await fetch("/additional-costs.csv");
+        const additionalText = await additionalRes.text();
+        const additionalParsed = Papa.parse(additionalText, { header: true });
+        setAdditionalData(normalizeHeaders(additionalParsed.data));
+
+        setTuitionData(tuitionResults);
+      } catch (err) {
+        console.error("Failed to load CSVs", err);
+      }
+    };
+
+    loadCSVs();
+  }, []);
+
+  useEffect(() => {
     if (cost !== null) {
       const numericCost = parseInt(cost.replace(/,/g, ''));
       animateValue(0, numericCost);
     }
   }, [cost]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setCost(null);
     setAnimatedCost(null);
     setBreakdown(null);
     setShowBreakdown(true);
 
-    const fileName = `${level}-${residency}.csv`;
+    const fileKey = `${level}-${residency}`;
+    const data = tuitionData[fileKey] || [];
+    const match = data.find((row) => parseInt(row.hours) === hours);
 
-    try {
-      // const baseUrl = 'https://tamuk-tuition-calculator-webcomponent.netlify.app'
-      const baseURL = 'https://tamuk.wr.ardent.dev/wp-content/uploads/2025/05' 
-      const response = await fetch(`${baseURL}/${fileName}`);
-      const text = await response.text();
-      const parsed = Papa.parse(text, { header: true });
-      const normalizedData = normalizeHeaders(parsed.data);
+    if (match) {
+      const selectedRow = additionalData.find(row => row["housing option"] === housing);
 
-      const match = normalizedData.find((row) => parseInt(row.hours) === hours);
+      let foodAndHousing = selectedRow ? parseFloat(selectedRow["food and housing"].replace(/,/g, '')) || 0 : 0;
+      let transportation = selectedRow ? parseFloat(selectedRow["transportation"].replace(/,/g, '')) || 0 : 0;
+      let miscellaneous = selectedRow ? parseFloat(selectedRow["miscellaneous"].replace(/,/g, '')) || 0 : 0;
+      const booksKey = level === "undergraduate" ? "undergraduate books" : "graduate books";
+      let booksCost = selectedRow ? parseFloat(selectedRow[booksKey].replace(/,/g, '')) || 0 : 0;
 
-      if (match) {
-        const additionalRes = await fetch("dist/additional-costs.csv");
-        const additionalText = await additionalRes.text();
-        const additionalParsed = Papa.parse(additionalText, { header: true });
-        const additionalData = normalizeHeaders(additionalParsed.data);
-
-        const selectedRow = additionalData.find(row => row["housing option"] === housing);
-
-        let foodAndHousing = selectedRow ? parseFloat(selectedRow["food and housing"].replace(/,/g, '')) || 0 : 0;
-        let transportation = selectedRow ? parseFloat(selectedRow["transportation"].replace(/,/g, '')) || 0 : 0;
-        let miscellaneous = selectedRow ? parseFloat(selectedRow["miscellaneous"].replace(/,/g, '')) || 0 : 0;
-        const booksKey = level === "undergraduate" ? "undergraduate books" : "graduate books";
-        let booksCost = selectedRow ? parseFloat(selectedRow[booksKey].replace(/,/g, '')) || 0 : 0;
-
-        if (term === "single") {
-          foodAndHousing /= 2;
-          transportation /= 2;
-          miscellaneous /= 2;
-          booksCost /= 2;
-        }
-
-        let baseTotal = parseFloat(match.total.toString().replace(/,/g, ''));
-        if (term === "fallspring") {
-          baseTotal *= 2;
-        }
-
-        const totalCost = baseTotal + foodAndHousing + transportation + miscellaneous + booksCost;
-
-        setCost(removeDecimalAndFormat(totalCost));
-        setBreakdown({ 
-          tuition: { ...match },
-          foodHousing: { "food and housing": foodAndHousing },
-          additional: { transportation, miscellaneous, books: booksCost }
-        });
-      } else {
-        setBreakdown(null);
+      if (term === "single") {
+        foodAndHousing /= 2;
+        transportation /= 2;
+        miscellaneous /= 2;
+        booksCost /= 2;
       }
-    } catch (err) {
-      console.error("Error loading or parsing the CSV file.", err);
+
+      let baseTotal = parseFloat(match.total.toString().replace(/,/g, ''));
+      if (term === "fallspring") {
+        baseTotal *= 2;
+      }
+
+      const totalCost = baseTotal + foodAndHousing + transportation + miscellaneous + booksCost;
+
+      setCost(removeDecimalAndFormat(totalCost));
+      setBreakdown({ 
+        tuition: { ...match },
+        foodHousing: { "food and housing": foodAndHousing },
+        additional: { transportation, miscellaneous, books: booksCost }
+      });
+    } else {
+      setBreakdown(null);
     }
   };
 
