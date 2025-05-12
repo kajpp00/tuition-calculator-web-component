@@ -61,7 +61,9 @@ export default function TuitionCalculator() {
     const fileName = `${level}-${residency}.csv`;
 
     try {
-      const response = await fetch(`/${fileName}`);
+      // const baseUrl = 'https://tamuk-tuition-calculator-webcomponent.netlify.app'
+      // const baseURL = 'https://tamuk.wr.ardent.dev/wp-content/uploads/2025/05' 
+      const response = await fetch(`dist/${fileName}`);
       const text = await response.text();
       const parsed = Papa.parse(text, { header: true });
       const normalizedData = normalizeHeaders(parsed.data);
@@ -69,7 +71,7 @@ export default function TuitionCalculator() {
       const match = normalizedData.find((row) => parseInt(row.hours) === hours);
 
       if (match) {
-        const additionalRes = await fetch("/additional-costs.csv");
+        const additionalRes = await fetch("dist/additional-costs.csv");
         const additionalText = await additionalRes.text();
         const additionalParsed = Papa.parse(additionalText, { header: true });
         const additionalData = normalizeHeaders(additionalParsed.data);
