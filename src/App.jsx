@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import "./TuitionCalculator.css";
 
@@ -14,7 +14,8 @@ export default function TuitionCalculator() {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [tuitionData, setTuitionData] = useState({});
   const [additionalData, setAdditionalData] = useState([]);
-  const baseURL = 'https://tamuk.wr.ardent.dev/wp-content/uploads/2025/05' 
+  const baseURL = 'https://tamuk.wr.ardent.dev/wp/uploads/2025/05';
+  const lastSubmissionRef = useRef({});
 
   const normalizeHeaders = (data) => {
     return data.map(row => {
@@ -80,7 +81,7 @@ export default function TuitionCalculator() {
   }, []);
 
   useEffect(() => {
-    if (cost !== null) {
+    if (cost !== null && cost !== "N/A") {
       const numericCost = parseInt(cost.replace(/,/g, ''));
       animateValue(0, numericCost);
     }
@@ -88,46 +89,54 @@ export default function TuitionCalculator() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setCost(null);
-    setAnimatedCost(null);
-    setBreakdown(null);
-    setShowBreakdown(true);
+
+    const submission = { level, residency, hours, housing, term };
+    const isRepeat = JSON.stringify(submission) === JSON.stringify(lastSubmissionRef.current);
+
+    if (isRepeat && cost !== null) return;
+    lastSubmissionRef.current = submission;
 
     const fileKey = `${level}-${residency}`;
     const data = tuitionData[fileKey] || [];
     const match = data.find((row) => parseInt(row.hours) === hours);
 
+    const selectedRow = additionalData.find(row => row["housing option"] === housing);
+
+    let foodAndHousing = selectedRow ? parseFloat(selectedRow["food and housing"].replace(/,/g, '')) || 0 : 0;
+    let transportation = selectedRow ? parseFloat(selectedRow["transportation"].replace(/,/g, '')) || 0 : 0;
+    let miscellaneous = selectedRow ? parseFloat(selectedRow["miscellaneous"].replace(/,/g, '')) || 0 : 0;
+    const booksKey = level === "undergraduate" ? "undergraduate books" : "graduate books";
+    let booksCost = selectedRow ? parseFloat(selectedRow[booksKey].replace(/,/g, '')) || 0 : 0;
+
+    if (term === "single") {
+      foodAndHousing /= 2;
+      transportation /= 2;
+      miscellaneous /= 2;
+      booksCost /= 2;
+    }
+
+    setShowBreakdown(true);
+
     if (match) {
-      const selectedRow = additionalData.find(row => row["housing option"] === housing);
-
-      let foodAndHousing = selectedRow ? parseFloat(selectedRow["food and housing"].replace(/,/g, '')) || 0 : 0;
-      let transportation = selectedRow ? parseFloat(selectedRow["transportation"].replace(/,/g, '')) || 0 : 0;
-      let miscellaneous = selectedRow ? parseFloat(selectedRow["miscellaneous"].replace(/,/g, '')) || 0 : 0;
-      const booksKey = level === "undergraduate" ? "undergraduate books" : "graduate books";
-      let booksCost = selectedRow ? parseFloat(selectedRow[booksKey].replace(/,/g, '')) || 0 : 0;
-
-      if (term === "single") {
-        foodAndHousing /= 2;
-        transportation /= 2;
-        miscellaneous /= 2;
-        booksCost /= 2;
-      }
-
       let baseTotal = parseFloat(match.total.toString().replace(/,/g, ''));
       if (term === "fallspring") {
         baseTotal *= 2;
       }
 
       const totalCost = baseTotal + foodAndHousing + transportation + miscellaneous + booksCost;
-
       setCost(removeDecimalAndFormat(totalCost));
-      setBreakdown({ 
+      setBreakdown({
         tuition: { ...match },
         foodHousing: { "food and housing": foodAndHousing },
         additional: { transportation, miscellaneous, books: booksCost }
       });
     } else {
-      setBreakdown(null);
+      setCost("N/A");
+      setBreakdown({
+        tuition: { hours },
+        foodHousing: { "food and housing": foodAndHousing },
+        additional: { transportation, miscellaneous, books: booksCost }
+      });
     }
   };
 
@@ -194,7 +203,7 @@ export default function TuitionCalculator() {
           <h2>Cost Breakdown:</h2>
           <div className="breakdown-columns">
             <div className="column">
-              <h3>Tuition & Fees: ${removeDecimalAndFormat(term === "fallspring" ? parseFloat(breakdown.tuition.total.toString().replace(/,/g, '')) * 2 : parseFloat(breakdown.tuition.total.toString().replace(/,/g, '')))}</h3>
+              <h3>Tuition & Fees: ${removeDecimalAndFormat(term === "fallspring" ? parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '')) * 2 : parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '')))}</h3>
               <ul>
                 {Object.entries(breakdown.tuition).map(([key, value]) => (
                   key !== "total" ? (
