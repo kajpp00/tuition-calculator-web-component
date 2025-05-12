@@ -1,4 +1,3 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'url';
@@ -14,7 +13,18 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/main.jsx'),
       name: 'TuitionCalculator',
       fileName: () => `tuition-calculator.js`,
-      formats: ['iife']
+      formats: ['iife'],
+    },
+    rollupOptions: {
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM'
+        }
+      },
     }
+  },
+  define: {
+    'process.env': {}, // Prevent "process is not defined"
   }
 });
