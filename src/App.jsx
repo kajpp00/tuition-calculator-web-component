@@ -14,7 +14,7 @@ export default function TuitionCalculator() {
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [tuitionData, setTuitionData] = useState({});
   const [additionalData, setAdditionalData] = useState([]);
-  const baseURL = 'https://tamuk.wr.ardent.dev/wp/uploads/2025/05';
+  const baseURL = 'https://www.tamuk.edu/_wp_rd_content/_wp_misc_feeds/tuition-calculator';
   const lastSubmissionRef = useRef({});
 
   const normalizeHeaders = (data) => {
