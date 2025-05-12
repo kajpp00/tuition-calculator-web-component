@@ -62,8 +62,8 @@ export default function TuitionCalculator() {
 
     try {
       // const baseUrl = 'https://tamuk-tuition-calculator-webcomponent.netlify.app'
-      // const baseURL = 'https://tamuk.wr.ardent.dev/wp-content/uploads/2025/05' 
-      const response = await fetch(`dist/${fileName}`);
+      const baseURL = 'https://tamuk.wr.ardent.dev/wp-content/uploads/2025/05' 
+      const response = await fetch(`${baseURL}/${fileName}`);
       const text = await response.text();
       const parsed = Papa.parse(text, { header: true });
       const normalizedData = normalizeHeaders(parsed.data);
