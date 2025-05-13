@@ -7,7 +7,7 @@ export default function TuitionCalculator() {
   const [residency, setResidency] = useState("resident");
   const [hours, setHours] = useState(15);
   const [housing, setHousing] = useState("home");
-  const [term, setTerm] = useState("single");
+  const [term, setTerm] = useState("fallspring");
   const [cost, setCost] = useState(null);
   const [animatedCost, setAnimatedCost] = useState(null);
   const [breakdown, setBreakdown] = useState(null);
@@ -38,7 +38,7 @@ export default function TuitionCalculator() {
 
   const animateValue = (start, end) => {
     let startTimestamp = null;
-    const duration = 1000;
+    const duration = 500;
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
@@ -103,7 +103,7 @@ export default function TuitionCalculator() {
       booksCost /= 2;
     }
 
-    setShowBreakdown(true);
+    // setShowBreakdown(true);
 
     if (match) {
       let baseTotal = parseFloat(match.total?.toString().replace(/,/g, '') || '0');
@@ -136,37 +136,39 @@ export default function TuitionCalculator() {
   }, [cost]);
 
   return (
-    <div className="container">
+    <div className="calculator-wrapper">
       <h1 className="heading">Tuition Cost Calculator</h1>
-      <form className="form">
-        <div>
-          <label>Level of Study</label><br />
+  
+      <form className="calculator-form">
+        <fieldset className="form-group">
+          <legend>Level of Study</legend>
           <label><input type="radio" value="undergraduate" checked={level === "undergraduate"} onChange={(e) => setLevel(e.target.value)} /> Undergraduate</label>
           <label><input type="radio" value="graduate" checked={level === "graduate"} onChange={(e) => setLevel(e.target.value)} /> Graduate</label>
-        </div>
-
-        <div>
-          <label>Residency Status</label><br />
+        </fieldset>
+  
+        <fieldset className="form-group">
+          <legend>Residency Status</legend>
           <label><input type="radio" value="resident" checked={residency === "resident"} onChange={(e) => setResidency(e.target.value)} /> Resident</label>
           <label><input type="radio" value="nonresident" checked={residency === "nonresident"} onChange={(e) => setResidency(e.target.value)} /> Non-Resident</label>
-        </div>
-
-        <div>
-          <label>Housing</label><br />
+        </fieldset>
+  
+        <fieldset className="form-group">
+          <legend>Housing</legend>
           <label><input type="radio" value="home" checked={housing === "home"} onChange={(e) => setHousing(e.target.value)} /> At Home</label>
           <label><input type="radio" value="dorm" checked={housing === "dorm"} onChange={(e) => setHousing(e.target.value)} /> Dorm</label>
           <label><input type="radio" value="off campus" checked={housing === "off campus"} onChange={(e) => setHousing(e.target.value)} /> Off Campus</label>
-        </div>
-
-        <div>
-          <label>Enrollment Term</label><br />
-          <label><input type="radio" value="single" checked={term === "single"} onChange={(e) => setTerm(e.target.value)} /> Single Semester</label>
+        </fieldset>
+  
+        <fieldset className="form-group">
+          <legend>Enrollment Term</legend>
           <label><input type="radio" value="fallspring" checked={term === "fallspring"} onChange={(e) => setTerm(e.target.value)} /> Fall & Spring</label>
-        </div>
-
-        <div>
-          <label>Number of Hours: {hours}</label><br />
+          <label><input type="radio" value="single" checked={term === "single"} onChange={(e) => setTerm(e.target.value)} /> Single Semester</label>
+        </fieldset>
+  
+        <div className="form-group hours-slider">
+          <label htmlFor="hours">Number of Hours: {hours}</label>
           <input
+            id="hours"
             type="range"
             value={hours}
             onChange={(e) => setHours(parseInt(e.target.value))}
@@ -175,30 +177,29 @@ export default function TuitionCalculator() {
           />
         </div>
       </form>
-
+  
       {animatedCost && (
-        <div className="result">
-          Estimated Cost: ${animatedCost}
-          <div>
-            <button onClick={() => setShowBreakdown(!showBreakdown)}>
-              {showBreakdown ? "Hide Breakdown" : "Show Breakdown"}
-            </button>
-          </div>
+        <div className="sticky-result">
+          <div className="estimated-cost">Estimated Cost: <strong>${animatedCost}</strong></div>
+          <button className="toggle-breakdown" onClick={() => setShowBreakdown(!showBreakdown)}>
+            {showBreakdown ? "Hide Breakdown" : "Show Breakdown"}
+          </button>
         </div>
       )}
-
+  
       {showBreakdown && breakdown && (
         <div className="breakdown">
-          <h2>Cost Breakdown:</h2>
+          <h2>Cost Breakdown</h2>
           <div className="breakdown-columns">
             <div className="column">
-              <h3>Tuition & Fees: {
+              <h3>Tuition & Fees</h3>
+              <p>${removeDecimalAndFormat(
                 breakdown.tuition.total
-                  ? `$${removeDecimalAndFormat(term === "fallspring"
-                      ? parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '') || '0') * 2
-                      : parseFloat(breakdown.tuition.total?.toString().replace(/,/g, '') || '0'))}`
-                  : "N/A"
-              }</h3>
+                  ? term === "fallspring"
+                    ? parseFloat(breakdown.tuition.total.replace(/,/g, '')) * 2
+                    : parseFloat(breakdown.tuition.total.replace(/,/g, ''))
+                  : 0
+              )}</p>
               <ul>
                 {Object.entries(breakdown.tuition).map(([key, value]) => {
                   if (key === "total") return null;
@@ -210,10 +211,12 @@ export default function TuitionCalculator() {
               </ul>
             </div>
             <div className="column">
-              <h3>Food & Housing: ${removeDecimalAndFormat(breakdown.foodHousing["food and housing"])}</h3>
+              <h3>Food & Housing</h3>
+              <p>${removeDecimalAndFormat(breakdown.foodHousing["food and housing"])}</p>
             </div>
             <div className="column">
-              <h3>Indirect Costs: ${removeDecimalAndFormat(Object.values(breakdown.additional).reduce((sum, value) => sum + value, 0))}</h3>
+              <h3>Indirect Costs</h3>
+              <p>${removeDecimalAndFormat(Object.values(breakdown.additional).reduce((sum, value) => sum + value, 0))}</p>
               <ul>
                 {Object.entries(breakdown.additional).map(([key, value]) => (
                   <li key={key}><strong>{key.replace(/\b\w/g, l => l.toUpperCase())}</strong>: ${removeDecimalAndFormat(value)}</li>
