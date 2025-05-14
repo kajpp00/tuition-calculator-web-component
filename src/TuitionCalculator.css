@@ -5,6 +5,20 @@
   font-family: system-ui, sans-serif;
 }
 
+.line-items {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.25rem;
+  border-bottom:1px solid black;
+  border-top:1px solid black;
+}
+
+.line-items li {
+  margin-left: 1rem;
+  font-size: 0.95rem;
+  padding: 2px 0;
+}
+
 .heading {
   text-align: center;
   font-size: 2rem;
@@ -87,4 +101,9 @@
 
 .breakdown-columns h3 {
   margin-top: 0;
+  text-align:center
+}
+
+.breakdown-total {
+  text-align:right
 }
