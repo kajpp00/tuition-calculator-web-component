@@ -18,6 +18,9 @@ export default function TuitionCalculator() {
   const [selectedHall, setSelectedHall] = useState("Martin Hall (Co-ed)");
   const [mealPlans, setMealPlans] = useState([]);
   const [selectedMeal, setSelectedMeal] = useState("none");
+  const [directTotal, setDirectTotal] = useState(0);
+  const [indirectTotal, setIndirectTotal] = useState(0);
+
   const baseURL = 'https://www.tamuk.edu/_wp_rd_content/_wp_misc_feeds/tuition-calculator';
 
   const normalizeHeaders = (data) => {
@@ -108,17 +111,23 @@ export default function TuitionCalculator() {
     let transportation = 0;
     let miscellaneous = 0;
     let booksCost = 0;
+    let hallCost = 0;
+    let mealCost = 0;
 
     if (housing === "dorm") {
       const hall = residenceHalls.find(h => h["residence hall"] === selectedHall);
       const meal = mealPlans.find(m => m["meal plan"] === selectedMeal);
 
       if (hall) {
-        foodAndHousing += parseFloat(hall["2 suite"].replace(/,/g, '')) || 0;
+        const rawHall = parseFloat(hall["2 suite"].replace(/,/g, '')) || 0;
+        hallCost = term === "fallspring" ? rawHall * 2 : rawHall;
+        foodAndHousing += hallCost;
       }
 
       if (meal && selectedMeal !== "none") {
-        foodAndHousing += parseFloat(meal["rate"].replace(/,/g, '')) || 0;
+        const rawMeal = parseFloat(meal["rate"].replace(/,/g, '')) || 0;
+        mealCost = term === "fallspring" ? rawMeal * 2 : rawMeal;
+        foodAndHousing += mealCost;
       }
 
       transportation = selectedRow ? parseFloat(selectedRow["transportation"].replace(/,/g, '')) || 0 : 0;
@@ -142,24 +151,43 @@ export default function TuitionCalculator() {
 
     if (match) {
       let baseTotal = parseFloat(match.total?.toString().replace(/,/g, '') || '0');
-      if (term === "fallspring") {
-        baseTotal *= 2;
+      const adjustedTuition = term === "fallspring" ? baseTotal * 2 : baseTotal;
+
+      const tuitionBreakdown = {};
+      for (const [key, value] of Object.entries(match)) {
+        if (key === "hours") {
+          tuitionBreakdown[key] = value;
+        } else {
+          const numeric = parseFloat(value?.toString().replace(/,/g, '') || '0');
+          tuitionBreakdown[key] = (term === "fallspring" ? numeric * 2 : numeric).toString();
+        }
       }
 
-      const totalCost = baseTotal + foodAndHousing + transportation + miscellaneous + booksCost;
+      const totalCost = adjustedTuition + foodAndHousing + transportation + miscellaneous + booksCost;
+
       setCost(removeDecimalAndFormat(totalCost));
       setBreakdown({
-        tuition: { ...match },
-        foodHousing: { "food and housing": foodAndHousing },
-        additional: { transportation, miscellaneous, books: booksCost }
+        tuition: tuitionBreakdown,
+        foodHousing: {
+          ...(housing === "dorm"
+            ? {
+              [selectedHall]: hallCost,
+              [selectedMeal]: mealCost
+            }
+            : { "food and housing": foodAndHousing }),
+        },
+        additional: {
+          transportation,
+          miscellaneous,
+          books: booksCost
+        }
       });
-    } else {
-      setCost("N/A");
-      setBreakdown({
-        tuition: { hours },
-        foodHousing: { "food and housing": foodAndHousing },
-        additional: { transportation, miscellaneous, books: booksCost }
-      });
+      const tuitionTotal = parseFloat(tuitionBreakdown.total?.replace(/,/g, '')) || 0;
+      const direct = tuitionTotal + foodAndHousing;
+      const indirect = transportation + miscellaneous + booksCost;
+
+      setDirectTotal(direct);
+      setIndirectTotal(indirect);
     }
   }, [level, residency, hours, housing, term, tuitionData, additionalData, selectedHall, selectedMeal, mealPlans, residenceHalls]);
 
@@ -235,7 +263,7 @@ export default function TuitionCalculator() {
           </>
         )}
 
-        
+
 
         <div className="form-group hours-slider">
           <label htmlFor="hours">Number of Hours: {hours}</label>
@@ -260,56 +288,64 @@ export default function TuitionCalculator() {
       )}
 
       {showBreakdown && breakdown && (
-        <div className="breakdown">
+        <div className="breakdown-section">
           <h2>Cost Breakdown</h2>
-          <div className="breakdown-columns">
-            <div className="column">
+          <button className="print-button" onClick={() => window.print()}>
+            Print Breakdown
+          </button>
+
+          <div className="cost-columns">
+            {/* Direct Costs */}
+            <div className="cost-column">
               <h3>Direct Costs</h3>
-              <h4>Tuition & Fees</h4>
-              <ul className="line-items">
+              <ul>
+                {/* Tuition & Fees */}
                 {Object.entries(breakdown.tuition).map(([key, value]) => {
-                  if (key === "total") return null;
-                  const label = key.replace(/\b\w/g, l => l.toUpperCase());
+                  if (key === "hours") return null;
                   return (
-                    <li key={key}><strong>{label}</strong>: {key === "hours" ? value : `$${removeDecimalAndFormat(value)}`}</li>
+                    <li key={key}>
+                      <span>{key.replace(/_/g, ' ')}</span>
+                      <span>${removeDecimalAndFormat(value)}</span>
+                    </li>
                   );
                 })}
-              </ul>
-              <p className="breakdown-total">${removeDecimalAndFormat(
-                breakdown.tuition.total
-                  ? term === "fallspring"
-                    ? parseFloat(breakdown.tuition.total.replace(/,/g, '')) * 2
-                    : parseFloat(breakdown.tuition.total.replace(/,/g, ''))
-                  : 0
-              )}</p>
-              <h4>Food & Housing</h4>
-               <ul className="line-items">
-                {housing === "dorm" && (
-                  <>
-                    {selectedHall && (
-                      <li><strong>Residence Hall: <br/></strong> {selectedHall} <br/> ${removeDecimalAndFormat(residenceHalls.find(h => h["residence hall"] === selectedHall)?.["2 suite"] || 0)}</li>
-                    )}
-                    <li>
-                      <strong>Meal Plan: <br/></strong> {selectedMeal === "none" ? "None" : `${selectedMeal}`} <br/> 
-                      {selectedMeal === "none" ? "$0" : `$${removeDecimalAndFormat(mealPlans.find(m => m["meal plan"] === selectedMeal)?.rate)}`}
-                    </li>
-                  </>
-                )}
-              </ul>
-                <p className="breakdown-total">${removeDecimalAndFormat(breakdown.foodHousing["food and housing"])}</p>
-            </div>
-            <div className="column">
-              <h3>Indirect Costs</h3>
-              <ul className="line-items">
-                {Object.entries(breakdown.additional).map(([key, value]) => (
-                  <li key={key}><strong>{key.replace(/\b\w/g, l => l.toUpperCase())}</strong>: ${removeDecimalAndFormat(value)}</li>
+
+                {/* Food & Housing */}
+                {Object.entries(breakdown.foodHousing).map(([key, value]) => (
+                  <li key={key}>
+                    <span>{key}</span>
+                    <span>${removeDecimalAndFormat(value)}</span>
+                  </li>
                 ))}
               </ul>
-                <p className="breakdown-total">${removeDecimalAndFormat(Object.values(breakdown.additional).reduce((sum, value) => sum + value, 0))}</p>
+              {/* Direct Costs Total */}
+              <div className="cost-total">
+                <strong>Total Direct Costs:</strong>
+                <span>${removeDecimalAndFormat(directTotal)}</span>
+              </div>
+            </div>
+
+            {/* Indirect Costs */}
+            <div className="cost-column">
+              <h3>Indirect Costs</h3>
+              <ul>
+                {Object.entries(breakdown.additional).map(([key, value]) => (
+                  <li key={key}>
+                    <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                    <span>${removeDecimalAndFormat(value)}</span>
+                  </li>
+                ))}
+              </ul>
+              {/* Indirect Costs Total */}
+              <div className="cost-total">
+                <strong>Total Indirect Costs:</strong>
+                <span>${removeDecimalAndFormat(indirectTotal)}</span>
+              </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

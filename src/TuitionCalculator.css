@@ -107,3 +107,78 @@
 .breakdown-total {
   text-align:right
 }
+
+.breakdown-section {
+  margin-top: 2rem;
+}
+
+.cost-columns {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.cost-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+.cost-column h3 {
+  border-bottom: 2px solid #ccc;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+
+.cost-column ul {
+  list-style: none;
+  padding: 0;
+}
+
+.cost-column li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.print-button {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Hide buttons and unnecessary UI in print */
+@media print {
+  .print-button,
+  .tuition-form,
+  .cost-toggle {
+    display: none;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .cost-columns {
+    flex-direction: column;
+  }
+
+  .cost-column {
+    margin-bottom: 1rem;
+  }
+
+  .grand-total {
+    text-align: left;
+  }
+}
+
+.cost-total {
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-top: 1px solid #ccc;
+  padding-top: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
