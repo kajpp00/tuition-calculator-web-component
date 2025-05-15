@@ -343,6 +343,13 @@ export default function TuitionCalculator() {
                         <span>${removeDecimalAndFormat(value)}</span>
                       </li>
                     );
+                   if (key === "Food & Housing")
+                    return (
+                      <li class="subtotals" key={key}>
+                        <span>{key}</span>
+                        <span>${removeDecimalAndFormat(value)}</span>
+                      </li>
+                    );
                   return (
                     <li key={key}>
                       <span>{key}</span>
