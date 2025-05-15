@@ -134,20 +134,27 @@ export default function TuitionCalculator() {
       miscellaneous = selectedRow ? parseFloat(selectedRow["miscellaneous"].replace(/,/g, '')) || 0 : 0;
       const booksKey = level === "undergraduate" ? "undergraduate books" : "graduate books";
       booksCost = selectedRow ? parseFloat(selectedRow[booksKey].replace(/,/g, '')) || 0 : 0;
+      if (term === "single") {
+        transportation /= 2;
+        miscellaneous /= 2;
+        booksCost /= 2;
+      }
     } else {
       foodAndHousing = selectedRow ? parseFloat(selectedRow["food and housing"].replace(/,/g, '')) || 0 : 0;
       transportation = selectedRow ? parseFloat(selectedRow["transportation"].replace(/,/g, '')) || 0 : 0;
       miscellaneous = selectedRow ? parseFloat(selectedRow["miscellaneous"].replace(/,/g, '')) || 0 : 0;
       const booksKey = level === "undergraduate" ? "undergraduate books" : "graduate books";
       booksCost = selectedRow ? parseFloat(selectedRow[booksKey].replace(/,/g, '')) || 0 : 0;
+      if (term === "single") {
+        foodAndHousing /= 2;
+        transportation /= 2;
+        miscellaneous /= 2;
+        booksCost /= 2;
+      }
     }
 
-    if (term === "single") {
-      foodAndHousing /= 2;
-      transportation /= 2;
-      miscellaneous /= 2;
-      booksCost /= 2;
-    }
+
+    console.log("here" + foodAndHousing);
 
     if (match) {
       let baseTotal = parseFloat(match.total?.toString().replace(/,/g, '') || '0');
@@ -172,9 +179,10 @@ export default function TuitionCalculator() {
           ...(housing === "dorm"
             ? {
               [selectedHall]: hallCost,
-              [selectedMeal]: mealCost
+              [selectedMeal]: mealCost,
+              'Room & Board': mealCost + hallCost
             }
-            : { "food and housing": foodAndHousing }),
+            : { "Food & Housing": foodAndHousing }),
         },
         additional: {
           transportation,
@@ -184,6 +192,7 @@ export default function TuitionCalculator() {
       });
       const tuitionTotal = parseFloat(tuitionBreakdown.total?.replace(/,/g, '')) || 0;
       const direct = tuitionTotal + foodAndHousing;
+
       const indirect = transportation + miscellaneous + booksCost;
 
       setDirectTotal(direct);
@@ -302,6 +311,13 @@ export default function TuitionCalculator() {
                 {/* Tuition & Fees */}
                 {Object.entries(breakdown.tuition).map(([key, value]) => {
                   if (key === "hours") return null;
+                  if (key === "total")
+                    return (
+                      <li class="subtotals" key={key}>
+                        <span>Tuition & Fees</span>
+                        <span>${removeDecimalAndFormat(value)}</span>
+                      </li>
+                    );
                   return (
                     <li key={key}>
                       <span>{key.replace(/_/g, ' ')}</span>
@@ -309,15 +325,33 @@ export default function TuitionCalculator() {
                     </li>
                   );
                 })}
+              </ul>
+              <ul>
 
                 {/* Food & Housing */}
-                {Object.entries(breakdown.foodHousing).map(([key, value]) => (
-                  <li key={key}>
-                    <span>{key}</span>
-                    <span>${removeDecimalAndFormat(value)}</span>
-                  </li>
-                ))}
+                {Object.entries(breakdown.foodHousing).map(([key, value]) => {
+                  if (key === "none") return (
+                    <li key={key}>
+                      <span>No Meal Plan</span>
+                      <span>$0</span>
+                    </li>
+                  );
+                   if (key === "Room & Board")
+                    return (
+                      <li class="subtotals" key={key}>
+                        <span>{key}</span>
+                        <span>${removeDecimalAndFormat(value)}</span>
+                      </li>
+                    );
+                  return (
+                    <li key={key}>
+                      <span>{key}</span>
+                      <span>${removeDecimalAndFormat(value)}</span>
+                    </li>
+                  )
+                })}
               </ul>
+
               {/* Direct Costs Total */}
               <div className="cost-total">
                 <strong>Total Direct Costs:</strong>

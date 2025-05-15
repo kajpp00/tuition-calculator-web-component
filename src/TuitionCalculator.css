@@ -108,6 +108,11 @@
   text-align:right
 }
 
+.subtotals {
+  text-align:right;
+  font-weight: 800;
+}
+
 .breakdown-section {
   margin-top: 2rem;
 }
@@ -138,6 +143,7 @@
   display: flex;
   justify-content: space-between;
   padding: 0.25rem 0;
+  text-transform: capitalize;
 }
 
 .print-button {
@@ -151,6 +157,7 @@
 @media print {
   .print-button,
   .tuition-form,
+  .calculator-form *,
   .cost-toggle {
     display: none;
   }
@@ -181,4 +188,5 @@
   padding-top: 0.5rem;
   display: flex;
   justify-content: space-between;
+  text-transform: uppercase;
 }
