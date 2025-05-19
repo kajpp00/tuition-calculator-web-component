@@ -206,7 +206,7 @@ export default function TuitionCalculator() {
   }, [cost]);
 
   return (
-    <main>
+    <div className="app-wrapper">
       <h1 className="heading">Tuition Cost Calculator</h1>
       <div className="calculator-wrapper">
         <form className="calculator-form">
@@ -518,6 +518,6 @@ export default function TuitionCalculator() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
