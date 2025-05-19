@@ -16,7 +16,7 @@ export default function TuitionCalculator() {
   const [tuitionData, setTuitionData] = useState({});
   const [additionalData, setAdditionalData] = useState([]);
   const [residenceHalls, setResidenceHalls] = useState([]);
-  const [selectedHall, setSelectedHall] = useState("Martin Hall (Co-ed)");
+  const [selectedHall, setSelectedHall] = useState("Lucio Hall (Co-ed)");
   const [mealPlans, setMealPlans] = useState([]);
   const [selectedMeal, setSelectedMeal] = useState("none");
   const [directTotal, setDirectTotal] = useState(0);
@@ -305,7 +305,7 @@ export default function TuitionCalculator() {
                 max="21"
               />
             </div>
-            
+
         </form>
 
         {animatedCost && (
