@@ -206,100 +206,224 @@ export default function TuitionCalculator() {
   }, [cost]);
 
   return (
-    <div className="calculator-wrapper">
+    <main>
       <h1 className="heading">Tuition Cost Calculator</h1>
+      <div className="calculator-wrapper">
+        <form className="calculator-form">
+          <fieldset>
+            <legend>Estimate Cost of Attendence</legend>
+            <div className="form-group">
+              <label htmlFor="level">Level of Study</label>
+              <select
+                id="level"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+              >
+                <option value="undergraduate">Undergraduate</option>
+                <option value="graduate">Graduate</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="residency">Residency Status</label>
+              <select
+                id="residency"
+                value={residency}
+                onChange={(e) => setResidency(e.target.value)}
+              >
+                <option value="resident">Resident</option>
+                <option value="nonresident">Non-Resident</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="housing">Housing</label>
+              <select
+                id="housing"
+                value={housing}
+                onChange={(e) => setHousing(e.target.value)}
+              >
+                <option value="home">At Home</option>
+                <option value="dorm">Dorm</option>
+                <option value="off campus">Off Campus</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="term">Enrollment Term</label>
+              <select
+                id="term"
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+              >
+                <option value="fallspring">Fall & Spring</option>
+                <option value="single">Single Semester</option>
+              </select>
+            </div>
 
-      <form className="calculator-form">
-        <fieldset className="form-group">
-          <legend>Level of Study</legend>
-          <label><input type="radio" value="undergraduate" checked={level === "undergraduate"} onChange={(e) => setLevel(e.target.value)} /> Undergraduate</label>
-          <label><input type="radio" value="graduate" checked={level === "graduate"} onChange={(e) => setLevel(e.target.value)} /> Graduate</label>
-        </fieldset>
 
-        <fieldset className="form-group">
-          <legend>Residency Status</legend>
-          <label><input type="radio" value="resident" checked={residency === "resident"} onChange={(e) => setResidency(e.target.value)} /> Resident</label>
-          <label><input type="radio" value="nonresident" checked={residency === "nonresident"} onChange={(e) => setResidency(e.target.value)} /> Non-Resident</label>
-        </fieldset>
-
-        <fieldset className="form-group">
-          <legend>Housing</legend>
-          <label><input type="radio" value="home" checked={housing === "home"} onChange={(e) => setHousing(e.target.value)} /> At Home</label>
-          <label><input type="radio" value="dorm" checked={housing === "dorm"} onChange={(e) => setHousing(e.target.value)} /> Dorm</label>
-          <label><input type="radio" value="off campus" checked={housing === "off campus"} onChange={(e) => setHousing(e.target.value)} /> Off Campus</label>
-        </fieldset>
-
-        <fieldset className="form-group">
-          <legend>Enrollment Term</legend>
-          <label><input type="radio" value="fallspring" checked={term === "fallspring"} onChange={(e) => setTerm(e.target.value)} /> Fall & Spring</label>
-          <label><input type="radio" value="single" checked={term === "single"} onChange={(e) => setTerm(e.target.value)} /> Single Semester</label>
-        </fieldset>
-
-        {housing === "dorm" && (
-          <>
-            <fieldset className="form-group">
-              <legend>Residence Hall</legend>
-              {residenceHalls.map(hall => (
-                <label key={hall["residence hall"]}>
-                  <input
-                    type="radio"
-                    value={hall["residence hall"]}
-                    checked={selectedHall === hall["residence hall"]}
+            {housing === "dorm" && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="residence-hall">Residence Hall</label>
+                  <select
+                    id="residence-hall"
+                    value={selectedHall}
                     onChange={(e) => setSelectedHall(e.target.value)}
-                  /> {hall["residence hall"]}
-                </label>
-              ))}
-            </fieldset>
+                  >
+                    <option value="">Select a residence hall</option>
+                    {residenceHalls.map(hall => (
+                      <option key={hall["residence hall"]} value={hall["residence hall"]}>
+                        {hall["residence hall"]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <fieldset className="form-group">
-              <legend>Meal Plan</legend>
-              <label>
-                <input type="radio" value="none" checked={selectedMeal === "none"} onChange={() => setSelectedMeal("none")} /> None
-              </label>
-              {mealPlans.map(meal => (
-                <label key={meal["meal plan"]}>
-                  <input
-                    type="radio"
-                    value={meal["meal plan"]}
-                    checked={selectedMeal === meal["meal plan"]}
+                <div className="form-group">
+                  <label htmlFor="meal-plan">Meal Plan</label>
+                  <select
+                    id="meal-plan"
+                    value={selectedMeal}
                     onChange={(e) => setSelectedMeal(e.target.value)}
-                  /> {meal["meal plan"]}
-                </label>
-              ))}
-            </fieldset>
-          </>
+                  >
+                    <option value="none">None</option>
+                    {mealPlans.map(meal => (
+                      <option key={meal["meal plan"]} value={meal["meal plan"]}>
+                        {meal["meal plan"]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+
+
+            <div className="form-group hours-slider">
+              <label htmlFor="hours">Number of Hours: {hours}</label>
+              <input
+                id="hours"
+                type="range"
+                value={hours}
+                onChange={(e) => setHours(parseInt(e.target.value))}
+                min="1"
+                max="21"
+              />
+            </div>
+          </fieldset>
+          {/* <div className="form-group">
+                <label htmlFor="level">Level of Study</label>
+                <select
+                  id="level"
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value)}
+                >
+                  <option value="undergraduate">Undergraduate</option>
+                  <option value="graduate">Graduate</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="residency">Residency Status</label>
+                <select
+                  id="residency"
+                  value={residency}
+                  onChange={(e) => setResidency(e.target.value)}
+                >
+                  <option value="resident">Resident</option>
+                  <option value="nonresident">Non-Resident</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="housing">Housing</label>
+                <select
+                  id="housing"
+                  value={housing}
+                  onChange={(e) => setHousing(e.target.value)}
+                >
+                  <option value="home">At Home</option>
+                  <option value="dorm">Dorm</option>
+                  <option value="off campus">Off Campus</option>
+                </select>
+              </div> 
+
+              <div className="form-group">
+                <label htmlFor="term">Enrollment Term</label>
+                <select
+                  id="term"
+                  value={term}
+                  onChange={(e) => setTerm(e.target.value)}
+                >
+                  <option value="fallspring">Fall & Spring</option>
+                  <option value="single">Single Semester</option>
+                </select>
+              </div>
+
+
+              {housing === "dorm" && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="residence-hall">Residence Hall</label>
+                    <select
+                      id="residence-hall"
+                      value={selectedHall}
+                      onChange={(e) => setSelectedHall(e.target.value)}
+                    >
+                      <option value="">Select a residence hall</option>
+                      {residenceHalls.map(hall => (
+                        <option key={hall["residence hall"]} value={hall["residence hall"]}>
+                          {hall["residence hall"]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="meal-plan">Meal Plan</label>
+                    <select
+                      id="meal-plan"
+                      value={selectedMeal}
+                      onChange={(e) => setSelectedMeal(e.target.value)}
+                    >
+                      <option value="none">None</option>
+                      {mealPlans.map(meal => (
+                        <option key={meal["meal plan"]} value={meal["meal plan"]}>
+                          {meal["meal plan"]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+
+
+              <div className="form-group hours-slider">
+                <label htmlFor="hours">Number of Hours: {hours}</label>
+                <input
+                  id="hours"
+                  type="range"
+                  value={hours}
+                  onChange={(e) => setHours(parseInt(e.target.value))}
+                  min="1"
+                  max="21"
+                />
+              </div> */}
+        </form>
+
+        {animatedCost && (
+          <div className="sticky-result">
+            <div className="estimated-cost">Estimated Cost: <br /><strong>${animatedCost}</strong></div>
+            <button className="toggle-breakdown" onClick={() => setShowBreakdown(!showBreakdown)}>
+              {showBreakdown ? "Hide Breakdown" : "Show Breakdown"}
+            </button>
+          </div>
         )}
 
-
-
-        <div className="form-group hours-slider">
-          <label htmlFor="hours">Number of Hours: {hours}</label>
-          <input
-            id="hours"
-            type="range"
-            value={hours}
-            onChange={(e) => setHours(parseInt(e.target.value))}
-            min="1"
-            max="21"
-          />
-        </div>
-      </form>
-
-      {animatedCost && (
-        <div className="sticky-result">
-          <div className="estimated-cost">Estimated Cost: <strong>${animatedCost}</strong></div>
-          <button className="toggle-breakdown" onClick={() => setShowBreakdown(!showBreakdown)}>
-            {showBreakdown ? "Hide Breakdown" : "Show Breakdown"}
-          </button>
-        </div>
-      )}
-
+      </div>
       {showBreakdown && breakdown && (
         <div className="breakdown-section">
           <h2>Cost Breakdown</h2>
           {/* <button className="print-button" onClick={() => window.print()}>
-            Print Breakdown
-          </button> */}
+          Print Breakdown
+        </button> */}
 
           <div className="cost-columns">
             {/* Direct Costs */}
@@ -394,7 +518,6 @@ export default function TuitionCalculator() {
           </div>
         </div>
       )}
-
-    </div>
+    </main>
   );
 }
