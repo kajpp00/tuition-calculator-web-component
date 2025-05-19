@@ -129,7 +129,7 @@
 }
 
 .cost-column h3 {
-  border-bottom: 2px solid #ccc;
+  /* border-bottom: 2px solid #ccc; */
   margin-bottom: 0.5rem;
   padding-bottom: 0.25rem;
 }
@@ -189,4 +189,48 @@
   display: flex;
   justify-content: space-between;
   text-transform: uppercase;
+}
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  margin-left: 4px;
+}
+
+.tooltip-icon {
+  font-size: 0.85em;
+  color: #555;
+  border-bottom: 1px dotted #999;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: max-content;
+  max-width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  padding: 5px 8px;
+  border-radius: 4px;
+  position: absolute;
+  z-index: 100;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: normal;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.cost-heading {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width:100%;
+  border-bottom:1px solid #ccc
 }

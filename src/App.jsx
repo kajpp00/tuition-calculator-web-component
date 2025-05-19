@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import "./TuitionCalculator.css";
+import Tooltip from './Tooltip'
 
 export default function TuitionCalculator() {
   const [level, setLevel] = useState("undergraduate");
@@ -153,9 +154,6 @@ export default function TuitionCalculator() {
       }
     }
 
-
-    console.log("here" + foodAndHousing);
-
     if (match) {
       let baseTotal = parseFloat(match.total?.toString().replace(/,/g, '') || '0');
       const adjustedTuition = term === "fallspring" ? baseTotal * 2 : baseTotal;
@@ -299,14 +297,19 @@ export default function TuitionCalculator() {
       {showBreakdown && breakdown && (
         <div className="breakdown-section">
           <h2>Cost Breakdown</h2>
-          <button className="print-button" onClick={() => window.print()}>
+          {/* <button className="print-button" onClick={() => window.print()}>
             Print Breakdown
-          </button>
+          </button> */}
 
           <div className="cost-columns">
             {/* Direct Costs */}
             <div className="cost-column">
-              <h3>Direct Costs</h3>
+              <div className="cost-heading">
+                <h3>Direct Costs</h3>
+                <Tooltip text="Direct costs may include tuition and fees, and on-campus food and housing. These are all items you pay directly to TAMUK">
+                  <span className="tooltip-icon">ⓘ</span>
+                </Tooltip>
+              </div>
               <ul>
                 {/* Tuition & Fees */}
                 {Object.entries(breakdown.tuition).map(([key, value]) => {
@@ -336,14 +339,14 @@ export default function TuitionCalculator() {
                       <span>$0</span>
                     </li>
                   );
-                   if (key === "Room & Board")
+                  if (key === "Room & Board")
                     return (
                       <li class="subtotals" key={key}>
                         <span>{key}</span>
                         <span>${removeDecimalAndFormat(value)}</span>
                       </li>
                     );
-                   if (key === "Food & Housing")
+                  if (key === "Food & Housing")
                     return (
                       <li class="subtotals" key={key}>
                         <span>{key}</span>
@@ -368,7 +371,12 @@ export default function TuitionCalculator() {
 
             {/* Indirect Costs */}
             <div className="cost-column">
-              <h3>Indirect Costs</h3>
+              <div className="cost-heading">
+                <h3>Indirect Costs</h3>
+                <Tooltip text=" Indirect costs are expenses incurred by you while you attend TAMUK, but not paid to TAMUK. Indirect costs can include transportation, personal expenses and books and supplies. These costs are estimated costs as your personal indirect costs may vary">
+                  <span className="tooltip-icon">ⓘ</span>
+                </Tooltip>
+              </div>
               <ul>
                 {Object.entries(breakdown.additional).map(([key, value]) => (
                   <li key={key}>
