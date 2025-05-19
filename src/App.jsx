@@ -6,9 +6,9 @@ import Tooltip from './Tooltip'
 export default function TuitionCalculator() {
   const [level, setLevel] = useState("undergraduate");
   const [residency, setResidency] = useState("resident");
-  const [hours, setHours] = useState(12);
+  const [hours, setHours] = useState(15);
   const [housing, setHousing] = useState("home");
-  const [term, setTerm] = useState("single");
+  const [term, setTerm] = useState("fallspring");
   const [cost, setCost] = useState(null);
   const [animatedCost, setAnimatedCost] = useState(null);
   const [breakdown, setBreakdown] = useState(null);
