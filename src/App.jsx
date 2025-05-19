@@ -209,8 +209,7 @@ export default function TuitionCalculator() {
     <div className="app-wrapper">
       <div className="calculator-wrapper">
         <form className="calculator-form">
-          <fieldset>
-            <legend>Estimate Cost of Attendence</legend>
+         
             <div className="form-group">
               <label htmlFor="level">Level of Study</label>
               <select
@@ -306,105 +305,7 @@ export default function TuitionCalculator() {
                 max="21"
               />
             </div>
-          </fieldset>
-          {/* <div className="form-group">
-                <label htmlFor="level">Level of Study</label>
-                <select
-                  id="level"
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value)}
-                >
-                  <option value="undergraduate">Undergraduate</option>
-                  <option value="graduate">Graduate</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="residency">Residency Status</label>
-                <select
-                  id="residency"
-                  value={residency}
-                  onChange={(e) => setResidency(e.target.value)}
-                >
-                  <option value="resident">Resident</option>
-                  <option value="nonresident">Non-Resident</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="housing">Housing</label>
-                <select
-                  id="housing"
-                  value={housing}
-                  onChange={(e) => setHousing(e.target.value)}
-                >
-                  <option value="home">At Home</option>
-                  <option value="dorm">Dorm</option>
-                  <option value="off campus">Off Campus</option>
-                </select>
-              </div> 
-
-              <div className="form-group">
-                <label htmlFor="term">Enrollment Term</label>
-                <select
-                  id="term"
-                  value={term}
-                  onChange={(e) => setTerm(e.target.value)}
-                >
-                  <option value="fallspring">Fall & Spring</option>
-                  <option value="single">Single Semester</option>
-                </select>
-              </div>
-
-
-              {housing === "dorm" && (
-                <>
-                  <div className="form-group">
-                    <label htmlFor="residence-hall">Residence Hall</label>
-                    <select
-                      id="residence-hall"
-                      value={selectedHall}
-                      onChange={(e) => setSelectedHall(e.target.value)}
-                    >
-                      <option value="">Select a residence hall</option>
-                      {residenceHalls.map(hall => (
-                        <option key={hall["residence hall"]} value={hall["residence hall"]}>
-                          {hall["residence hall"]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="meal-plan">Meal Plan</label>
-                    <select
-                      id="meal-plan"
-                      value={selectedMeal}
-                      onChange={(e) => setSelectedMeal(e.target.value)}
-                    >
-                      <option value="none">None</option>
-                      {mealPlans.map(meal => (
-                        <option key={meal["meal plan"]} value={meal["meal plan"]}>
-                          {meal["meal plan"]}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
-
-
-              <div className="form-group hours-slider">
-                <label htmlFor="hours">Number of Hours: {hours}</label>
-                <input
-                  id="hours"
-                  type="range"
-                  value={hours}
-                  onChange={(e) => setHours(parseInt(e.target.value))}
-                  min="1"
-                  max="21"
-                />
-              </div> */}
+            
         </form>
 
         {animatedCost && (
@@ -419,7 +320,7 @@ export default function TuitionCalculator() {
       </div>
       {showBreakdown && breakdown && (
         <div className="breakdown-section">
-          <h2>Cost Breakdown</h2>
+          {/* <h2>Cost Breakdown</h2> */}
           {/* <button className="print-button" onClick={() => window.print()}>
           Print Breakdown
         </button> */}
@@ -428,7 +329,7 @@ export default function TuitionCalculator() {
             {/* Direct Costs */}
             <div className="cost-column">
               <div className="cost-heading">
-                <h3>Direct Costs</h3>
+                <p><strong>Direct Costs</strong></p>
                 <Tooltip text="Direct costs may include tuition and fees, and on-campus food and housing. These are all items you pay directly to TAMUK">
                   <span className="tooltip-icon">ⓘ</span>
                 </Tooltip>
@@ -495,7 +396,7 @@ export default function TuitionCalculator() {
             {/* Indirect Costs */}
             <div className="cost-column">
               <div className="cost-heading">
-                <h3>Indirect Costs</h3>
+                <p><strong>Indirect Costs</strong></p>
                 <Tooltip text=" Indirect costs are expenses incurred by you while you attend TAMUK, but not paid to TAMUK. Indirect costs can include transportation, personal expenses and books and supplies. These costs are estimated costs as your personal indirect costs may vary">
                   <span className="tooltip-icon">ⓘ</span>
                 </Tooltip>
