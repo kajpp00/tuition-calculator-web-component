@@ -4,7 +4,7 @@ import "./TuitionCalculator.css";
 import Tooltip from './Tooltip'
 
 export default function TuitionCalculator() {
-  const [level, setLevel] = useState("");
+  const [level, setLevel] = useState("undergraduate");
   const [residency, setResidency] = useState("resident");
   const [hours, setHours] = useState(15);
   const [housing, setHousing] = useState("home");
