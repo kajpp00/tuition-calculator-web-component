@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-import "./TuitionCalculator.css";
+import "./Tuition-select-form.css";
 import Tooltip from './Tooltip'
 
 export default function TuitionCalculator() {
-  const [level, setLevel] = useState("undergraduate");
+  const [level, setLevel] = useState("");
   const [residency, setResidency] = useState("resident");
   const [hours, setHours] = useState(15);
   const [housing, setHousing] = useState("home");
@@ -23,6 +23,19 @@ export default function TuitionCalculator() {
   const [indirectTotal, setIndirectTotal] = useState(0);
 
   const baseURL = 'https://www.tamuk.edu/_wp_rd_content/_wp_misc_feeds/tuition-calculator';
+
+  useEffect(()=>{
+    const singlePostNode = document.querySelector('[data-elementor-type="single-post"]')
+
+    if (singlePostNode) {
+      if (singlePostNode.classList.contains('program_type-bachelors-degree')){
+        setLevel('undergraduate')
+      } else {
+        setLevel('graduate')
+      }
+    }
+
+  },[])
 
   const normalizeHeaders = (data) => {
     return data.map(row => {
