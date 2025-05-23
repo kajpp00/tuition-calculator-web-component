@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-import "./Tuition-select-form.css";
+import "./TuitionCalculator.css";
 import Tooltip from './Tooltip'
 
 export default function TuitionCalculator() {
