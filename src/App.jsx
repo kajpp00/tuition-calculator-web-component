@@ -280,7 +280,7 @@ export default function TuitionCalculator() {
                   if (key === "hours") return null;
                   if (key === "total")
                     return (
-                      <li class="subtotals" key={key}>
+                      <li className="subtotals" key={key}>
                         <span>Tuition & Fees</span>
                         <span>${removeDecimalAndFormat(value)}</span>
                       </li>
