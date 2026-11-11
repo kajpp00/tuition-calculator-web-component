@@ -54,4 +54,7 @@ export default defineConfig({
       },
     }
   },
+  define: {
+    'process.env': {}, // Prevent "process is not defined"
+  }
 })
