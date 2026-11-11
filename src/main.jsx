@@ -7,10 +7,7 @@ class TuitionCalculatorElement extends HTMLElement {
     const container = document.createElement("div");
     this.appendChild(container);
     const root = createRoot(container);
-    root.render(
-      <StrictMode>
-        <TuitionCalculator />
-      </StrictMode>);
+    root.render(<TuitionCalculator />);
   }
 }
 
