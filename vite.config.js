@@ -22,14 +22,9 @@ export default defineConfig({
           'react-dom': 'ReactDOM'
         }
       },
-    },
-    intro: `
-        window.process = { env: { NODE_ENV: 'production' } };
-      `,
+    }
   },
   define: {
-    'process.env': {
-      NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'production')
-    }, // Prevent "process is not defined"
+    'process.env': {}, // Prevent "process is not defined"
   }
 });

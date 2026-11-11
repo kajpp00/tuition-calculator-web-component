@@ -1,4 +1,3 @@
-window.process = { env: { NODE_ENV: 'production' } };
 import { createRoot } from "react-dom/client";
 import TuitionCalculator from "./App.jsx";
 
