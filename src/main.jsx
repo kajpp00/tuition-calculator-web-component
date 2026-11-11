@@ -1,13 +1,16 @@
-import React from "react";
+import { StrictMode } from 'react'
 import { createRoot } from "react-dom/client";
-import TuitionCalculator from "./App";
+import TuitionCalculator from "./App.jsx";
 
 class TuitionCalculatorElement extends HTMLElement {
   connectedCallback() {
     const container = document.createElement("div");
     this.appendChild(container);
     const root = createRoot(container);
-    root.render(<TuitionCalculator />);
+    root.render(
+      <StrictMode>
+        <TuitionCalculator />
+      </StrictMode>);
   }
 }
 
