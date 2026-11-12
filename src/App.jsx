@@ -22,30 +22,30 @@ export default function TuitionCalculator() {
   const [additionalData, setAdditionalData] = useState([]);
   const [directTotal, setDirectTotal] = useState(0);
   const [indirectTotal, setIndirectTotal] = useState(0);
- 
+
 
   // const baseURL = 'https://www.tamuk.edu/_wp_rd_content/_wp_misc_feeds/tuition-calculator';
 
   // const programType = ['program_type-masters-degree','program_type-bachelors-degree']
-  
-  
+
+
   useEffect(() => {
 
-      const singlePostNode = document.querySelector('[data-elementor-type="single-post"]')
-  
-      if (singlePostNode) {
-        setTimeout(() => {
-          
-          if (singlePostNode.classList.contains('program_type-bachelors-degree')) {
-            setLevel('undergraduate')
-          } else {
-            setLevel('graduate')
-          }
-        }, 0);
-      }
+    const singlePostNode = document.querySelector('[data-elementor-type="single-post"]')
+
+    if (singlePostNode) {
+      setTimeout(() => {
+
+        if (singlePostNode.classList.contains('program_type-bachelors-degree')) {
+          setLevel('undergraduate')
+        } else {
+          setLevel('graduate')
+        }
+      }, 0);
+    }
 
   }, [])
-        
+
 
   const normalizeHeaders = (data) => {
     return data.map(row => {
@@ -81,39 +81,39 @@ export default function TuitionCalculator() {
     };
     window.requestAnimationFrame(step);
   };
-//local version
-useEffect(() => {
-  const loadCSVs = () => {
-    try {
-      // Map filenames to imported CSV strings
-      const csvFiles = {
-        'undergraduate-resident': UNDERGRAD_RES_CSV,
-        'undergraduate-nonresident': UNDERGRAD_NONRES_CSV,
-        'graduate-resident': GRAD_RES_CSV,
-        'graduate-nonresident': GRAD_NONRES_CSV,
-      };
-      const tuitionResults = {};
+  //local version
+  useEffect(() => {
+    const loadCSVs = () => {
+      try {
+        // Map filenames to imported CSV strings
+        const csvFiles = {
+          'undergraduate-resident': UNDERGRAD_RES_CSV,
+          'undergraduate-nonresident': UNDERGRAD_NONRES_CSV,
+          'graduate-resident': GRAD_RES_CSV,
+          'graduate-nonresident': GRAD_NONRES_CSV,
+        };
+        const tuitionResults = {};
 
-      for (const [key, csvRaw] of Object.entries(csvFiles)) {
-        const parsed = Papa.parse(csvRaw, { header: true, skipEmptyLines: true });
-        tuitionResults[key] = normalizeHeaders(parsed.data);
+        for (const [key, csvRaw] of Object.entries(csvFiles)) {
+          const parsed = Papa.parse(csvRaw, { header: true, skipEmptyLines: true });
+          tuitionResults[key] = normalizeHeaders(parsed.data);
+        }
+
+        setTuitionData(tuitionResults);
+
+        // Additional costs
+        const additionalParsed = Papa.parse(ADDITIONAL_COSTS, { header: true, skipEmptyLines: true });
+        setAdditionalData(normalizeHeaders(additionalParsed.data));
+      } catch (err) {
+        console.error("Failed to load CSVs", err);
       }
+    };
 
-      setTuitionData(tuitionResults);
-
-      // Additional costs
-      const additionalParsed = Papa.parse(ADDITIONAL_COSTS, { header: true, skipEmptyLines: true });
-      setAdditionalData(normalizeHeaders(additionalParsed.data));
-    } catch (err) {
-      console.error("Failed to load CSVs", err);
-    }
-  };
-
-  loadCSVs();
-}, []);
+    loadCSVs();
+  }, []);
 
 
-//fetch version
+  //fetch version
   // useEffect(() => {
   //   const loadCSVs = async () => {
   //     try {
@@ -159,8 +159,8 @@ useEffect(() => {
     let transportation;
     let miscellaneous;
     let booksCost;
-    
-    
+
+
     foodAndHousing = selectedRow ? parseFloat(selectedRow["food and housing"].replace(/,/g, '')) || 0 : 0;
     transportation = selectedRow ? parseFloat(selectedRow["transportation"].replace(/,/g, '')) || 0 : 0;
     miscellaneous = selectedRow ? parseFloat(selectedRow["miscellaneous"].replace(/,/g, '')) || 0 : 0;
@@ -190,7 +190,7 @@ useEffect(() => {
 
       const totalCost = adjustedTuition + foodAndHousing + transportation + miscellaneous + booksCost;
 
-      setTimeout(()=>{
+      setTimeout(() => {
         setCost(removeDecimalAndFormat(totalCost));
         setBreakdown({
           tuition: tuitionBreakdown,
@@ -203,8 +203,8 @@ useEffect(() => {
         });
         setDirectTotal(direct);
         setIndirectTotal(indirect);
-      },0)
-      
+      }, 0)
+
       // const tuitionTotal = parseFloat(tuitionBreakdown.total?.replace(/,/g, '')) || 0;
 
       let direct = adjustedTuition;
@@ -295,13 +295,13 @@ useEffect(() => {
 
         </form>
 
-        
-          <div className="sticky-result">
-            <div className="estimated-cost">Estimated Cost: <br /><strong>${animatedCost}</strong></div>
-            <button className="toggle-breakdown" onClick={() => setShowBreakdown(!showBreakdown)}>
-              {showBreakdown ? "Hide Breakdown" : "Show Breakdown"}
-            </button>
-          </div>
+
+        <div className="sticky-result">
+          <div className="estimated-cost">Estimated Cost: <br /><strong>${animatedCost}</strong></div>
+          <button className="toggle-breakdown" onClick={() => setShowBreakdown(!showBreakdown)}>
+            {showBreakdown ? "Hide Breakdown" : "Show Breakdown"}
+          </button>
+        </div>
 
       </div>
       {showBreakdown && breakdown && (
