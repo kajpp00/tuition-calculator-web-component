@@ -112,42 +112,6 @@ export default function TuitionCalculator() {
     loadCSVs();
   }, []);
 
-
-  //fetch version
-  // useEffect(() => {
-  //   const loadCSVs = async () => {
-  //     try {
-  //       const files = [
-  //         'undergraduate-resident.csv',
-  //         'undergraduate-nonresident.csv',
-  //         'graduate-resident.csv',
-  //         'graduate-nonresident.csv'
-  //       ];
-  //       const tuitionResults = {};
-
-  //       for (const file of files) {
-  //         const res = await fetch(`${baseURL}/${file}`);
-  //         // const res = await fetch(file)
-  //         const text = await res.text();
-  //         const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-  //         tuitionResults[file.replace('.csv', '')] = normalizeHeaders(parsed.data);
-  //       }
-
-  //       setTuitionData(tuitionResults);
-
-  //       const additionalRes = await fetch(`${baseURL}/additional-costs.csv`);
-  //       // const additionalRes = await fetch('additional-costs.csv')
-  //       const additionalText = await additionalRes.text();
-  //       const additionalParsed = Papa.parse(additionalText, { header: true, skipEmptyLines: true });
-  //       setAdditionalData(normalizeHeaders(additionalParsed.data));
-  //     } catch (err) {
-  //       console.error("Failed to load CSVs", err);
-  //     }
-  //   };
-
-  //   loadCSVs();
-  // }, []);
-
   useEffect(() => {
     const fileKey = `${level}-${residency}`;
     const data = tuitionData[fileKey] || [];
